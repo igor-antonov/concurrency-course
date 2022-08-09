@@ -1,6 +1,5 @@
 package course.concurrency.exams.auction;
 
-import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,20 +12,20 @@ public class AuctionPessimistic implements Auction {
         this.notifier = notifier;
     }
 
-    private Bid latestBid;
+    private volatile Bid latestBid = new Bid(0L, 0L, 0L);
 
     public boolean propose(Bid bid) {
-        try {
-            lock.lock();
-            if (Objects.isNull(latestBid) || bid.price > latestBid.price) {
-                notifier.sendOutdatedMessage(latestBid);
-                latestBid = bid;
-                return true;
-            }
+        if (bid.price <= latestBid.price) {
             return false;
+        }
+        lock.lock();
+        try {
+            notifier.sendOutdatedMessage(latestBid);
+            latestBid = bid;
         } finally {
             lock.unlock();
         }
+        return true;
     }
 
     public Bid getLatestBid() {
