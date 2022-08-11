@@ -18,8 +18,8 @@ public class AuctionOptimistic implements Auction {
 
         do {
             expected = latestBid.get();
-            newVal = bid.price > expected.price ? bid : expected;
-            if (newVal == expected) {
+            newVal = bid;
+            if (newVal.price <= expected.price) {
                 return false;
             }
         } while (latestBid.compareAndSet(expected, newVal));
