@@ -13,14 +13,19 @@ public class AuctionOptimistic implements Auction {
     }
 
     public boolean propose(Bid bid) {
-        Bid expected = latestBid.get();
-        Bid newVal = bid.price > expected.price ? bid : expected;
+        Bid expected;
+        Bid newVal;
 
-        if (latestBid.compareAndSet(expected, newVal)) {
-            notifier.sendOutdatedMessage(expected);
-            return true;
-        }
-        return false;
+        do {
+            expected = latestBid.get();
+            newVal = bid.price > expected.price ? bid : expected;
+            if (newVal == expected) {
+                return false;
+            }
+        } while (latestBid.compareAndSet(expected, newVal));
+
+        notifier.sendOutdatedMessage(expected);
+        return true;
     }
 
     public Bid getLatestBid() {
