@@ -15,6 +15,9 @@ public class AuctionPessimistic implements Auction {
     private volatile Bid latestBid = new Bid(0L, 0L, 0L);
 
     public boolean propose(Bid bid) {
+        if (bid.price <= latestBid.price) {
+            return false;
+        }
         lock.lock();
         try {
             if (bid.price <= latestBid.price) {
