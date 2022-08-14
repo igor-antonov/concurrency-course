@@ -7,7 +7,7 @@ public class AuctionStoppablePessimistic implements AuctionStoppable {
 
     private final Notifier notifier;
     private final Lock lock = new ReentrantLock();
-    private boolean isStop;
+    private volatile boolean isStop;
 
     public AuctionStoppablePessimistic(Notifier notifier) {
         this.notifier = notifier;
