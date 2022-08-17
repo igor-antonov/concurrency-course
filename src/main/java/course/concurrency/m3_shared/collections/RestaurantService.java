@@ -7,13 +7,11 @@ import java.util.stream.Collectors;
 
 public class RestaurantService {
 
-    private final AtomicInteger counter;
-    private final ConcurrentHashMap<String, Integer> stat;
+    private final ConcurrentHashMap<String, AtomicInteger> stat;
     private final Restaurant mockRestaurant;
 
     public RestaurantService() {
         this.stat = new ConcurrentHashMap();
-        this.counter = new AtomicInteger(0);
         this.mockRestaurant = new Restaurant("A");
     }
 
@@ -23,13 +21,13 @@ public class RestaurantService {
     }
 
     public void addToStat(String restaurantName) {
-        stat.put(restaurantName, counter.incrementAndGet());
+        stat.computeIfAbsent(restaurantName, k -> new AtomicInteger(0)).incrementAndGet();
     }
 
     public Set<String> printStat() {
         return stat.entrySet()
             .stream()
-            .map((e) -> getStat(e.getKey(), e.getValue()))
+            .map((e) -> getStat(e.getKey(), e.getValue().get()))
             .collect(Collectors.toSet());
     }
 
