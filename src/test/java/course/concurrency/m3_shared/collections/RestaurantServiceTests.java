@@ -1,13 +1,17 @@
 package course.concurrency.m3_shared.collections;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import course.concurrency.exams.auction.ExecutionStatistics;
-import course.concurrency.exams.auction.Notifier;
-import org.junit.jupiter.api.*;
-
-import java.util.Set;
-import java.util.concurrent.*;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 
 @Disabled
 public class RestaurantServiceTests {
@@ -42,7 +46,13 @@ public class RestaurantServiceTests {
             } catch (InterruptedException ignored) {}
 
             for (int it = 0; it < iterations; it++) {
-                service.getByName("A");
+                String name = "A" + (int) (Math.random() * 10);
+                if (it == iterations -1) {
+                    service.getByName("B");
+                } else {
+                    service.getByName(name);
+                }
+
             }
         });
 
@@ -52,7 +62,7 @@ public class RestaurantServiceTests {
         executor.awaitTermination(30, TimeUnit.SECONDS);
         long end = System.currentTimeMillis();
 
-        assertEquals(Set.of("A - " + iterations), service.printStat());
+        assertTrue(service.printStat().contains("B - " + iterations));
         stat.addData("service",end - start);
     }
 }
