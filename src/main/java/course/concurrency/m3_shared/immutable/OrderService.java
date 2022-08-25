@@ -36,7 +36,9 @@ public class OrderService {
     }
 
     private void deliver(Order order) {
-        currentOrders.computeIfPresent(order.getId(), (id, o) -> o.withStatus(Order.Status.DELIVERED));
+        if (!isDelivered(order.getId())) {
+            currentOrders.computeIfPresent(order.getId(), (id, o) -> o.withStatus(Order.Status.DELIVERED));
+        }
     }
 
     public boolean isDelivered(long orderId) {
